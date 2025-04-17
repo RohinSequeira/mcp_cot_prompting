@@ -1,0 +1,15 @@
+[project]
+name = "mcp-cot-prompting"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "mcp>=0.1.0",
+    "python-dotenv>=0.19.0",
+    "google-genai>=1.9.0",
+    "pyautogui>=0.9.53",
+    "Pillow>=9.0.0",
+    "google-auth-oauthlib>=1.2.1",
+    "google-api-python-client>=2.166"
+]
