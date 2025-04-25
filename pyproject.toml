@@ -11,5 +11,6 @@ dependencies = [
     "pyautogui>=0.9.53",
     "Pillow>=9.0.0",
     "google-auth-oauthlib>=1.2.1",
-    "google-api-python-client>=2.166"
+    "google-api-python-client>=2.166",
+    "rich>=14.0.0",
 ]

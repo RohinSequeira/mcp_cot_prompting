@@ -8,6 +8,11 @@ import math
 import sys
 import subprocess
 import time
+from rich.console import Console
+from rich.panel import Panel
+from typing import Union, List
+
+console = Console()
 
 # Global variable for Freeform window
 freeform_window = None
@@ -567,6 +572,69 @@ def debug_error(error: str) -> list[base.Message]:
         base.UserMessage(error),
         base.AssistantMessage("I'll help debug that. What have you tried so far?"),
     ]
+
+@mcp.tool()
+def show_reasoning(steps: list) -> TextContent:
+    """Show the step-by-step reasoning process"""
+    console.print("[blue]FUNCTION CALL:[/blue] show_reasoning()")
+    for i, step in enumerate(steps, 1):
+        console.print(Panel(
+            f"{step}",
+            title=f"Step {i}",
+            border_style="cyan"
+        ))
+    return TextContent(
+        type="text",
+        text="Reasoning shown"
+    )
+
+@mcp.tool()
+def verify(expression: str, expected: Union[float, int, List[int]]) -> TextContent:
+    """Verify if a calculation is correct"""
+    console.print("[blue]FUNCTION CALL:[/blue] verify()")
+    console.print(f"[blue]Verifying:[/blue] {expression} = {expected}")
+    try:
+        # actual = float(eval(expression))
+        # print(f"DEBUG: Actual: {actual}")
+        # is_correct = abs(actual - float(expected)) < 1e-10
+        # print(f"DEBUG: Is correct: {is_correct}")
+        eval_context = {
+            'math': math,
+            'exp': math.exp,
+            'sum': sum,
+            'ord': ord
+        }
+
+        actual = eval(expression, eval_context)
+        if isinstance(expected, list):
+            # Handle list of integers comparison
+            is_correct = actual == expected
+        else:
+            # Handle single float/int comparison
+            actual_float = float(actual)
+            expected_float = float(expected)
+            if abs(expected_float) > 1e10:  # For very large numbers
+                relative_diff = abs((actual_float - expected_float) / expected_float)
+                is_correct = relative_diff < 1e-10  # 0.0000000001 relative tolerance
+            else:
+                # For smaller numbers, use absolute difference
+                is_correct = abs(actual_float - expected_float) < 1e-10
+        
+        if is_correct:
+            console.print(f"[green]✓ Correct! {expression} = {expected}[/green]")
+        else:
+            console.print(f"[red]✗ Incorrect! {expression} should be {actual}, got {expected}[/red]")
+            
+        return TextContent(
+            type="text",
+            text=str(is_correct)
+        )
+    except Exception as e:
+        console.print(f"[red]Error:[/red] {str(e)}")
+        return TextContent(
+            type="text",
+            text=f"Error: {str(e)}"
+        )
 
 if __name__ == "__main__":
     # Check if running with mcp dev command
